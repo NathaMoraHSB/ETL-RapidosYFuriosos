@@ -1,6 +1,6 @@
 RAPIDOS-Y_FURIOSOS:
   drivername: postgresql
-  user: postgresql
+  user: oswaldo
   password: Lukas12345
   port: 5432
   host: localhost
@@ -8,7 +8,7 @@ RAPIDOS-Y_FURIOSOS:
 
 ETL_RYF:
   drivername: postgresql
-  user: postgresql
+  user: oswaldo
   password: Lukas12345
   port: 5432
   host: localhost
