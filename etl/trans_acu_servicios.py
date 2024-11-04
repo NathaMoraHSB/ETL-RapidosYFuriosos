@@ -3,6 +3,11 @@ from sqlalchemy import text
 
 import helper
 
+# Constants
+
+TABLE_NAME = 'trans_acu_servicios'
+INDEX_NAME = 'key_trans_servicio'
+
 # Establish connections
 
 ryf_conn = helper.get_ryf_conn()
@@ -74,7 +79,7 @@ df_merged = df_merged.rename(
 
 # Drop the existing table if it exists
 with etl_conn.connect() as connection:
-    connection.execute(text("DROP TABLE IF EXISTS trans_acu_servicios;"))
+    connection.execute(text(f"DROP TABLE IF EXISTS {TABLE_NAME};"))
 
 # Load
-df_merged.to_sql('trans_acu_servicios', etl_conn, if_exists='replace', index_label='key_trans_servicio')
+df_merged.to_sql(TABLE_NAME, etl_conn, if_exists='replace', index_label=INDEX_NAME)
