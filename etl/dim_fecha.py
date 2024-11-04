@@ -1,14 +1,20 @@
-from datetime import date
 import pandas as pd
+from datetime import date
 import holidays
 import helper
 
+# Constants
+
+TABLE_NAME = 'dim_fecha'
+INDEX_NAME = 'key_dim_fecha'
+
+# Establish connections
 
 ryf_conn = helper.get_ryf_conn()
 etl_conn = helper.get_etl_conn()
 
 # Crear un rango de fechas por minuto para obtener horas y minutos también
-dates = pd.date_range(start='1/1/2023', end='12/31/2025 23:59', freq='min')
+dates = pd.date_range(start='1/1/2023', end='12/31/2025 23:59', freq='D')
 
 # Inicializar el DataFrame
 dim_fecha = pd.DataFrame({
@@ -38,9 +44,6 @@ dim_fecha["saved"] = date.today()
 # Identificar si es fin de semana (sábado o domingo)
 dim_fecha["weekend"] = dim_fecha["fecha_completa"].dt.weekday >= 5
 
-# Mostrar las primeras filas del DataFrame para verificar
-dim_fecha.head()
-
 
 # Añadir indicadores booleanos para días laborales y fines de semana
 dim_fecha["es_dia_laboral"] = dim_fecha["fecha_completa"].dt.weekday < 5  # True si es de lunes a viernes
@@ -50,6 +53,5 @@ dim_fecha["es_fin_de_semana"] = dim_fecha["fecha_completa"].dt.weekday >= 5  # T
 co_holidays = holidays.CO(years=dim_fecha["año"].unique(), language="es")
 dim_fecha["es_feriado"] = dim_fecha["fecha_completa"].dt.date.isin(co_holidays)
 
-
-dim_fecha.to_sql('dim_fecha', etl_conn, if_exists='replace', index_label='key_dim_fecha')
-
+# Load
+helper.load_data("etl_conn", dim_fecha, TABLE_NAME, INDEX_NAME)
