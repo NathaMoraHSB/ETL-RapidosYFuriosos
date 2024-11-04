@@ -1,5 +1,11 @@
 import pandas as pd
 import helper
+from sqlalchemy import text
+
+# Constants
+
+TABLE_NAME = 'dim_cliente'
+INDEX_NAME = 'key_dim_cliente'
 
 # Establish connections
 
@@ -28,15 +34,16 @@ df_cliente_ciudad_departamento = pd.merge(df_cliente_ciudad, df_departamento, on
 df_dim_cliente = pd.merge(df_cliente_ciudad_departamento, df_tipo_cliente, on='tipo_cliente_id', how='left')
 
 
-df_dim_cliente = df_dim_cliente[[
+df_merged = df_dim_cliente[[
     'cliente_id', 'nit_cliente', 'nombre', 'email', 'direccion', 'telefono',
     'nombre_contacto', 'ciudad', 'departamento', 'tipo_cliente', 'activo', 'sector'
 ]]
 
 # Load
-df_dim_cliente.to_sql(
-    'dim_cliente',  # Nombre de la tabla destino en la base de datos.
-    con=etl_conn,   # Conexión a la base de datos ETL.
-    if_exists='replace',  # Reemplaza la tabla si ya existe.
-    index_label='key_dim_cliente'  # Nombre de la columna de índice (clave primaria).
-)
+
+# Drop the existing table if it exists
+with etl_conn.connect() as connection:
+    connection.execute(text(f"DROP TABLE IF EXISTS {TABLE_NAME};"))
+
+# Load
+df_merged.to_sql(TABLE_NAME, etl_conn, if_exists='replace', index_label=INDEX_NAME)
