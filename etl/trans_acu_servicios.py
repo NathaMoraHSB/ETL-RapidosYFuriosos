@@ -1,4 +1,6 @@
 import pandas as pd
+from sqlalchemy import text
+
 import helper
 
 # Establish connections
@@ -45,7 +47,19 @@ df_merged = (df_mensajeria_servicio.merge(
 ))
 
 # Drop the columns that are no longer needed
-df_merged = df_merged.drop(columns=['id_y', 'servicio_id'])
+df_merged = df_merged.drop(columns=[
+    'id_y', 'servicio_id', 'hora_visto_por_mensajero', 'visto_por_mensajero',
+    'descripcion_multiples_origenes'])
+
+# Clean data in columns mensajero_id, mensajero2_id, mensajero3_id replace null values with 0
+df_merged['mensajero_id'] = df_merged['mensajero_id'].fillna(0)
+df_merged['mensajero2_id'] = df_merged['mensajero2_id'].fillna(0)
+df_merged['mensajero3_id'] = df_merged['mensajero3_id'].fillna(0)
+
+# if descripcion_cancelado is "" replace with "N/A"
+df_merged['descripcion_cancelado'] = df_merged['descripcion_cancelado'].replace("", "N/A")
+df_merged['descripcion_pago'] = df_merged['descripcion_pago'].replace("", "N/A")
+df_merged['novedades'] = df_merged['novedades'].replace("", "N/A")
 
 # Rename the columns
 df_merged = df_merged.rename(
@@ -59,6 +73,10 @@ print(df_merged.columns)
 
 # print count rows
 print(df_merged.shape)
+
+# Drop the existing table if it exists
+with etl_conn.connect() as connection:
+    connection.execute(text("DROP TABLE IF EXISTS trans_acu_servicios;"))
 
 
 # Load (if needed)
