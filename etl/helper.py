@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import yaml
 
 # Cargar configuración de conexión desde el archivo YAML
@@ -19,4 +19,18 @@ def get_ryf_conn():
 
 def get_etl_conn():
     return create_engine(url_etl)
+
+def load_data(connection, df, table_name, index_name):
+    # Determine the correct database connection
+    if connection == "etl_conn":
+        db_conn = get_etl_conn()
+    else:
+        db_conn = get_ryf_conn()
+
+    # Use the connection object to execute SQL statements
+    with db_conn.connect() as conn:
+        conn.execute(text(f"DROP TABLE IF EXISTS {table_name};"))
+
+    # Load the DataFrame into the SQL table
+    df.to_sql(table_name, db_conn, if_exists='replace', index_label=index_name)
 

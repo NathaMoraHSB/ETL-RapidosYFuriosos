@@ -78,8 +78,4 @@ df_merged = df_merged.rename(
 )
 
 # Drop the existing table if it exists
-with etl_conn.connect() as connection:
-    connection.execute(text(f"DROP TABLE IF EXISTS {TABLE_NAME};"))
-
-# Load
-df_merged.to_sql(TABLE_NAME, etl_conn, if_exists='replace', index_label=INDEX_NAME)
+helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
