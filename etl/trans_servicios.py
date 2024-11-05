@@ -15,7 +15,6 @@ etl_conn = helper.get_etl_conn()
 # Extract
 
 df_mensajeria_servicio = pd.read_sql_table('mensajeria_servicio', ryf_conn)
-
 df_clientes_usuario = pd.read_sql_table('clientes_usuarioaquitoy', ryf_conn)
 df_mensajeria_origen = pd.read_sql_table('mensajeria_origenservicio', ryf_conn)
 df_mensajeria_destino = pd.read_sql_table('mensajeria_destinoservicio', ryf_conn)
