@@ -22,6 +22,11 @@ df_tipo_novedad = pd.read_sql_table('mensajeria_tiponovedad', ryf_conn)
 df_novedad = df_novedad[['id', 'descripcion', 'fecha_novedad', 'tipo_novedad_id']].rename(columns={'id': 'novedad_id', 'descripcion': 'novedad_descripcion', 'fecha_novedad': 'novedad_fecha'})
 df_tipo_novedad = df_tipo_novedad[['id', 'nombre']].rename(columns={'id': 'tipo_novedad_id', 'nombre': 'tipo_novedad_nombre'})
 
+# Clean
+
+# Fill empty strings
+df_novedad['novedad_descripcion'] = df_novedad['novedad_descripcion'].fillna("N/A")
+df_novedad['novedad_descripcion'] = df_novedad['novedad_descripcion'].replace("", "N/A")
 # Merge
 
 # Perform the LEFT JOIN operations
