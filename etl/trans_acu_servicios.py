@@ -1,6 +1,5 @@
 import pandas as pd
 import helper
-from sqlalchemy import text
 
 
 # Constants
