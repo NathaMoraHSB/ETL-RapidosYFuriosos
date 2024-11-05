@@ -1,30 +1,39 @@
 import pandas as pd
 import helper
 
+# Constants
+
+TABLE_NAME = 'dim_sede'
+INDEX_NAME = 'key_dim_sede'
+
+# Establish connections
 
 ryf_conn = helper.get_ryf_conn()
 etl_conn = helper.get_etl_conn()
 
 
-# Query para extraer la información de la dimensión sede
-query = """
-SELECT
-    s.sede_id,
-    s.nombre AS sede_nombre,
-    s.direccion AS sede_direccion,
-    s.telefono AS sede_telefono,
-    s.nombre_contacto AS contacto_sede,
-    c.nombre AS ciudad_nombre,
-    cl.nombre AS cliente_nombre
-FROM
-    public.sede s
-LEFT JOIN
-    public.ciudad c ON s.ciudad_id = c.ciudad_id
-LEFT JOIN
-    public.cliente cl ON s.cliente_id = cl.cliente_id;
-"""
+# Extract
 
-# Leer los datos desde la base de datos 'RAPIDOS-Y_FURIOSOS' a un DataFrame de Pandas
-df_sede = pd.read_sql(query, ryf_conn)
+df_sede = pd.read_sql_table('sede', ryf_conn)
+df_ciudad = pd.read_sql_table('ciudad', ryf_conn)
 
-df_sede.to_sql('dim_sede', etl_conn, index=False, if_exists='replace')
+# Transform
+
+df_sede = df_sede[['sede_id', 'nombre', 'direccion', 'telefono', 'nombre_contacto', 'ciudad_id']].rename(columns={'nombre': 'sede_nombre', 'direccion': 'sede_direccion', 'telefono': 'sede_telefono', 'nombre_contacto': 'contacto_sede'})
+df_ciudad = df_ciudad[['ciudad_id', 'nombre']].rename(columns={'nombre': 'ciudad_nombre'})
+
+# Merge
+
+# Perform the LEFT JOIN operations
+
+df_dim_sede = pd.merge(df_sede, df_ciudad, on='ciudad_id', how='left')
+
+# Clean
+
+# Drop columns that are not needed
+
+df_merged = df_dim_sede.drop(columns=['ciudad_id'])
+
+# Load
+
+helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
