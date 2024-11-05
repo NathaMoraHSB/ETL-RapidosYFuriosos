@@ -27,8 +27,7 @@ df_mensajeria_tipo_servicio = pd.read_sql_table('mensajeria_tiposervicio', ryf_c
 df_mensajeria_novedad_servicio = df_mensajeria_novedad_servicio.rename(
     columns={
         'id': 'novedad_servicio_id',
-        'descripcion': 'descripcion_novedad',
-        'mensajero_id': 'novedad_mensajero_id'
+        'descripcion': 'descripcion_novedad'
     }
 )
 
@@ -120,20 +119,19 @@ df_merged = ((df_mensajeria_novedad_servicio.merge(
 ))
 # Clean
 
-# Update mensajero_id based on mensajero2_id and mensajero3_id
-df_merged = df_merged.apply(helper.update_mensajero_ids, axis=1)
-
-# Drop rows where mensajero_id is still None (these are the rows marked for dropping)
-df_merged = df_merged.dropna(subset=['mensajero_id'])
-
 # Drop columns
 df_merged = df_merged.drop(columns=[
     'hora_visto_por_mensajero', 'visto_por_mensajero',
     'descripcion_multiples_origenes', 'tipo_pago_id', 'tipo_vehiculo_id', 'usuario_id',
     'hora_solicitud', 'fecha_deseada', 'mensajero2_id', 'mensajero3_id', 'origen_id', 'destino_id',
     'origen_ciudad_id', 'destino_ciudad_id', 'ciudad_origen_id', 'ciudad_destino_id', 'tipo_servicio_id',
-    'mensajeria_servicio_id', 'servicio_id', 'id'
-])
+    'mensajeria_servicio_id', 'servicio_id', 'id', 'mensajero_id_y'
+]).rename(
+    columns=
+    {
+        'mensajero_id_x': 'mensajero_id'
+    }
+)
 
 # Fill empty strings
 
