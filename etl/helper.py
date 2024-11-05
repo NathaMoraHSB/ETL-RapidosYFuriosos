@@ -1,3 +1,4 @@
+import pandas as pd
 from sqlalchemy import create_engine, text
 import yaml
 
@@ -33,4 +34,13 @@ def load_data(connection, df, table_name, index_name):
 
     # Load the DataFrame into the SQL table
     df.to_sql(table_name, db_conn, if_exists='replace', index_label=index_name)
+
+def update_mensajero_ids(row):
+    # If mensajero2_id is not null, use its value
+    if not pd.isnull(row['mensajero2_id']):
+        row['mensajero_id'] = row['mensajero2_id']
+    # If mensajero3_id is not null and mensajero_id is still null, use its value
+    if not pd.isnull(row['mensajero3_id']):
+        row['mensajero_id'] = row['mensajero3_id']
+    return row
 
