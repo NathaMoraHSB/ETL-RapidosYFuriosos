@@ -21,7 +21,7 @@ df_auth_user = pd.read_sql_table('auth_user', ryf_conn)
 # Transform
 
 df_clientes_mensajero = df_clientes_mensajero[['id', 'user_id', 'activo', 'fecha_entrada', 'fecha_salida', 'telefono', 'url_foto', 'ciudad_operacion_id']].rename(columns={'id': 'mensajero_id'})
-df_ciudad = df_ciudad[['ciudad_id', 'nombre']].rename(columns={'nombre': 'ciudad'})
+df_ciudad = df_ciudad[['ciudad_id', 'nombre']].rename(columns={'nombre': 'ciudad_nombre'})
 df_auth_user = df_auth_user[['id', 'username', 'first_name', 'last_name', 'email']]
 
 # Merge
@@ -30,7 +30,6 @@ df_auth_user = df_auth_user[['id', 'username', 'first_name', 'last_name', 'email
 
 df_dim_mensajero = pd.merge(df_clientes_mensajero, df_ciudad, left_on='ciudad_operacion_id', right_on='ciudad_id', how='left')
 df_merged = pd.merge(df_dim_mensajero, df_auth_user, left_on='user_id', right_on='id', how='left')
-print(df_merged.columns)
 
 # Clean
 
@@ -38,7 +37,7 @@ print(df_merged.columns)
 df_merged = df_merged.drop(columns=['ciudad_id', 'ciudad_operacion_id', 'id', 'fecha_entrada', 'fecha_salida'])
 
 # Fill empty strings
-df_merged['ciudad'] = df_merged['ciudad'].fillna("N/A")
+df_merged['ciudad_nombre'] = df_merged['ciudad_nombre'].fillna("N/A")
 
 # Load
 
