@@ -25,7 +25,7 @@ def load_data(connection, df, table_name, index_name):
     if connection == "etl_conn":
         db_conn = get_etl_conn()
     else:
-        db_conn = get_ryf_conn()
+        raise ValueError("Invalid connection name.")
 
     # Use the connection object to execute SQL statements
     with db_conn.connect() as conn:
