@@ -53,15 +53,18 @@ df_merged = (df_mensajeria_servicio.merge(
 
 # Clean
 
+# Update mensajero_id based on mensajero2_id and mensajero3_id
+df_merged = df_merged.apply(helper.update_mensajero_ids, axis=1)
+
+# Drop rows where mensajero_id is still None (these are the rows marked for dropping)
+df_merged = df_merged.dropna(subset=['mensajero_id'])
+
 # Drop columns
 df_merged = df_merged.drop(columns=[
     'id_y', 'servicio_id', 'hora_visto_por_mensajero', 'visto_por_mensajero',
-    'descripcion_multiples_origenes'])
-
-# Fill Null values
-df_merged['mensajero_id'] = df_merged['mensajero_id'].fillna(0)
-df_merged['mensajero2_id'] = df_merged['mensajero2_id'].fillna(0)
-df_merged['mensajero3_id'] = df_merged['mensajero3_id'].fillna(0)
+    'descripcion_multiples_origenes', 'tipo_pago_id', 'tipo_vehiculo_id', 'usuario_id',
+    'hora_solicitud', 'fecha_deseada', 'mensajero2_id', 'mensajero3_id'
+])
 
 # Fill empty strings
 
