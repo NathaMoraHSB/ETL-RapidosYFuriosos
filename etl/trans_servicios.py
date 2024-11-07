@@ -80,69 +80,81 @@ df_merged = df_mensajeria_servicio.merge(
 # using the following rules:
 
 def process_service_statuses(row):
-    # find in df_mensajeria_estado_servicio all rows with servicio_id == row.servicio_id
-    df_service_statuses = df_mensajeria_estado_servicio[df_mensajeria_estado_servicio['servicio_id'] == 78]
-    # if there are no statuses, delete the row
+    # Find all statuses for the given servicio_id
+    df_service_statuses = df_mensajeria_estado_servicio[df_mensajeria_estado_servicio['servicio_id'] == row['servicio_id']]
+    print("df_service_statuses:")
+    print(df_service_statuses)
     if df_service_statuses.empty:
-        return None
-    # Order the statuses by estado_servicio_id, then fecha and hora
+        return pd.Series([None]*14, index=[
+            'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion',
+            'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida',
+            'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega',
+            'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado'
+        ])
+
+    # Order statuses by estado_servicio_id, estado_fecha, and estado_hora
     df_service_statuses = df_service_statuses.sort_values(by=['estado_servicio_id', 'estado_fecha', 'estado_hora'])
-    print(df_service_statuses.head(15))
-    print('---')
 
-    # if there are statuses, process them
-    # find the first status with estado_servicio_id == 1 and take the oldest estado_fecha and estado_hora
-    requested_state = df_service_statuses[df_service_statuses['estado_servicio_id'] == 1]
-    if requested_state.empty:
-        return None
-    requested_state = requested_state.iloc[0]
+    # Helper to get a status by ID, defaulting to None if not found
+    def get_status(state_id, get_latest=False):
+        state = df_service_statuses[df_service_statuses['estado_servicio_id'] == state_id]
+        if state.empty:
+            return None, None
+        return (state.iloc[-1] if get_latest else state.iloc[0])[['estado_fecha', 'estado_hora']]
 
-    print(requested_state)
-    print('---')
-    #find the second status wirh estado_servicio_id == 2 and take newest one
+    # Get each relevant status
+    requested_date, requested_time = get_status(1)
+    assigned_date, assigned_time = get_status(2, get_latest=True)
+    picked_up_date, picked_up_time = get_status(4)
+    delivered_date, delivered_time = get_status(5)
+    closed_date, closed_time = get_status(6)
+    if closed_date is None:
+        closed_date, closed_time = delivered_date, delivered_time
 
-    assigned_state = df_service_statuses[df_service_statuses['estado_servicio_id'] == 2]
-    if assigned_state.empty:
-        return None
-    assigned_state = assigned_state.iloc[-1]
-    print(assigned_state)
-    print('---')
+    # Calculate durations in minutes between states
+    def calc_duration(start_date, start_time, end_date, end_time):
+        if None in [start_date, start_time, end_date, end_time]:
+            return None
+        start = pd.to_datetime(f"{start_date} {start_time}")
+        print("start:", start)
+        end = pd.to_datetime(f"{end_date} {end_time}")
+        print("end:", end)
+        return int((end - start).total_seconds() / 60)  # convert to minutes
 
-    #find the third status wirh estado_servicio_id == 4 and take oldest one
-    picked_up_state = df_service_statuses[df_service_statuses['estado_servicio_id'] == 4]
-    if picked_up_state.empty:
-        return None
-    picked_up_state = picked_up_state.iloc[0]
+    # Debug each calculation to verify values
+    print("requested_date:", requested_date, "requested_time:", requested_time)
+    print("assigned_date:", assigned_date, "assigned_time:", assigned_time)
+    print("picked_up_date:", picked_up_date, "picked_up_time:", picked_up_time)
+    print("delivered_date:", delivered_date, "delivered_time:", delivered_time)
+    print("closed_date:", closed_date, "closed_time:", closed_time)
 
-    print(picked_up_state)
-    print('---')
+    print("Duration from requested to assigned:", calc_duration(requested_date, requested_time, assigned_date, assigned_time))
+    print("Duration from assigned to picked up:", calc_duration(assigned_date, assigned_time, picked_up_date, picked_up_time))
+    print("Duration from picked up to delivered:", calc_duration(picked_up_date, picked_up_time, delivered_date, delivered_time))
+    print("Duration from delivered to closed:", calc_duration(delivered_date, delivered_time, closed_date, closed_time))
 
-    #find the fourth status wirh estado_servicio_id == 5 and take oldest one
-    delivered_state = df_service_statuses[df_service_statuses['estado_servicio_id'] == 5]
-    if delivered_state.empty:
-        return None
-    delivered_state = delivered_state.iloc[0]
+    # exit()  # Use exit to stop for debugging and check printed results
 
-    print(delivered_state)
-    print('---')
+    # If calculations are correct, return the final Series
+    return pd.Series([
+        assigned_date, assigned_time, calc_duration(requested_date, requested_time, assigned_date, assigned_time),
+        picked_up_date, picked_up_time, calc_duration(assigned_date, assigned_time, picked_up_date, picked_up_time),
+        delivered_date, delivered_time, calc_duration(picked_up_date, picked_up_time, delivered_date, delivered_time),
+        closed_date, closed_time, calc_duration(delivered_date, delivered_time, closed_date, closed_time)
+    ], index=[
+        'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion',
+        'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida',
+        'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega',
+        'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado'
+    ])
 
-    #find the fifth status wirh estado_servicio_id == 6 and take oldest one
-    closed_state = df_service_statuses[df_service_statuses['estado_servicio_id'] == 6]
-    if closed_state.empty:
-        closed_state = delivered_state
-    else:
-        closed_state = closed_state.iloc[0]
-    print(closed_state)
-    print('---')
-    # calculate the duration of each status
-    # tiempo_minutos_asignacion with requested_state and assigned_state with estado_hora and estado_fecha
-    # row['tiempo_minutos_asignacion']
+test  = process_service_statuses(df_merged.iloc[0])
+print("\ntest:")
+print(test)
 
-    print(tiempo_minutos_asignacion)
-    print('---')
 
-    exit()
-df_merged = df_merged.apply(process_service_statuses, axis=1)
+# Apply the function to the dataframe
+# df_merged = df_merged.apply(process_service_statuses, axis=1)
 
 
 
