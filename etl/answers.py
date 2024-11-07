@@ -28,11 +28,7 @@ print('Fact Tables')
 print('Hecho Novedades:', df_hecho_novedades.shape[0])
 print('Hecho Acumulating Servicios:', df_hecho_acumulating_servicios.shape[0])
 print('Hecho Servicios Dia:', df_hecho_servicios_dia.shape[0])
-num_servicios_hora = df_hecho_servicios_hora['numero_servicios'].sum()
-print('Hecho Servicios Hora:', num_servicios_hora)
-num_servicios_dia = df_hecho_servicios_dia['numero_servicios'].sum()
-print('Hecho Servicios Dia:', num_servicios_dia, '\n')
-
+print('Hecho Servicios Hora:', df_hecho_servicios_hora.shape[0], '\n')
 
 # 1) En qué meses del año los clientes solicitan más servicios de mensajería
 
