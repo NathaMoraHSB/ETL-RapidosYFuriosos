@@ -171,7 +171,8 @@ df_merged = df_merged.dropna(subset=[
     'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
     'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
 ])
-
+# Reset the index
+df_merged = df_merged.reset_index(drop=True)
 
 # Load
 helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
