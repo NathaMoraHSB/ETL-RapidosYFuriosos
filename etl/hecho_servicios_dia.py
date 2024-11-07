@@ -25,27 +25,13 @@ df_dim_fecha = pd.read_sql_table('dim_fecha', etl_conn)
 
 # Transform
 
-# Remove unnecessary columns
-
-df_merged = df_trans_servicios.drop(columns=[
-    'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
-    'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
-    'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
-    'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado',
-    'total_tiempo_minutos', 'total_tiempo_horas'
-])
-
-print(df_merged.columns)
-
-# need to answer the following question
-
 # Merge with dim_fecha
 
-df_merged['fecha_solicitud'] = pd.to_datetime(df_merged['fecha_solicitud'])
+df_trans_servicios['fecha_solicitud'] = pd.to_datetime(df_trans_servicios['fecha_solicitud'])
 df_merged = pd.merge(
-    df_merged,
+    df_trans_servicios,
     df_dim_fecha[['key_dim_fecha', 'fecha_id']],
-    left_on=df_merged['fecha_solicitud'].dt.strftime('%Y%m%d').astype(int),
+    left_on=df_trans_servicios['fecha_solicitud'].dt.strftime('%Y%m%d').astype(int),
     right_on='fecha_id').drop(columns=['fecha_id', 'fecha_solicitud']).rename(columns={'key_dim_fecha': 'key_dim_fecha_solicitud'})
 
 df_merged = df_merged.groupby('key_dim_fecha_solicitud').size().reset_index(name='numero_servicios')
