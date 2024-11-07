@@ -79,17 +79,16 @@ df_merged = df_mensajeria_servicio.merge(
 
 # using the following rules:
 
+
 def process_service_statuses(row):
     # Find all statuses for the given servicio_id
     df_service_statuses = df_mensajeria_estado_servicio[df_mensajeria_estado_servicio['servicio_id'] == row['servicio_id']]
-    print("df_service_statuses:")
-    print(df_service_statuses)
     if df_service_statuses.empty:
-        return pd.Series([None]*14, index=[
-            'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion',
-            'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida',
-            'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega',
-            'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado'
+        return pd.Series([None]*16, index=[
+            'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
+            'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
+            'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
+            'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
         ])
 
     # Order statuses by estado_servicio_id, estado_fecha, and estado_hora
@@ -111,54 +110,61 @@ def process_service_statuses(row):
     if closed_date is None:
         closed_date, closed_time = delivered_date, delivered_time
 
-    # Calculate durations in minutes between states
+    # Check for congruency: requested <= assigned <= picked_up <= delivered <= closed
+    def is_congruent(*args):
+        # Check if any of the datetime fields are None
+        for i in range(0, len(args)-3, 2):
+            if None in args[i:i+4]:
+                return False  # If any field is None, return False
+            if pd.to_datetime(f"{args[i]} {args[i+1]}") > pd.to_datetime(f"{args[i+2]} {args[i+3]}"):
+                return False  # If any date/time comparison fails, return False
+        return True
+
+    if not is_congruent(requested_date, requested_time, assigned_date, assigned_time,
+                        assigned_date, assigned_time, picked_up_date, picked_up_time,
+                        picked_up_date, picked_up_time, delivered_date, delivered_time,
+                        delivered_date, delivered_time, closed_date, closed_time):
+        return pd.Series([None]*16, index=[
+            'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
+            'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
+            'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
+            'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
+        ])
+
+    # Calculate durations in minutes and hours between states
     def calc_duration(start_date, start_time, end_date, end_time):
         if None in [start_date, start_time, end_date, end_time]:
-            return None
+            return None, None
         start = pd.to_datetime(f"{start_date} {start_time}")
-        print("start:", start)
         end = pd.to_datetime(f"{end_date} {end_time}")
-        print("end:", end)
-        return int((end - start).total_seconds() / 60)  # convert to minutes
+        total_minutes = (end - start).total_seconds() / 60  # convert to minutes
+        total_hours = total_minutes / 60  # convert to hours
+        return round(total_minutes, 2), round(total_hours, 2)
 
-    # Debug each calculation to verify values
-    print("requested_date:", requested_date, "requested_time:", requested_time)
-    print("assigned_date:", assigned_date, "assigned_time:", assigned_time)
-    print("picked_up_date:", picked_up_date, "picked_up_time:", picked_up_time)
-    print("delivered_date:", delivered_date, "delivered_time:", delivered_time)
-    print("closed_date:", closed_date, "closed_time:", closed_time)
+    # Calculate durations
+    requested_to_assigned_minutes, requested_to_assigned_hours = calc_duration(requested_date, requested_time, assigned_date, assigned_time)
+    assigned_to_picked_up_minutes, assigned_to_picked_up_hours = calc_duration(assigned_date, assigned_time, picked_up_date, picked_up_time)
+    picked_up_to_delivered_minutes, picked_up_to_delivered_hours = calc_duration(picked_up_date, picked_up_time, delivered_date, delivered_time)
+    delivered_to_closed_minutes, delivered_to_closed_hours = calc_duration(delivered_date, delivered_time, closed_date, closed_time)
 
-    print("Duration from requested to assigned:", calc_duration(requested_date, requested_time, assigned_date, assigned_time))
-    print("Duration from assigned to picked up:", calc_duration(assigned_date, assigned_time, picked_up_date, picked_up_time))
-    print("Duration from picked up to delivered:", calc_duration(picked_up_date, picked_up_time, delivered_date, delivered_time))
-    print("Duration from delivered to closed:", calc_duration(delivered_date, delivered_time, closed_date, closed_time))
-
-    # exit()  # Use exit to stop for debugging and check printed results
-
-    # If calculations are correct, return the final Series
+    # Return the final Series
     return pd.Series([
-        assigned_date, assigned_time, calc_duration(requested_date, requested_time, assigned_date, assigned_time),
-        picked_up_date, picked_up_time, calc_duration(assigned_date, assigned_time, picked_up_date, picked_up_time),
-        delivered_date, delivered_time, calc_duration(picked_up_date, picked_up_time, delivered_date, delivered_time),
-        closed_date, closed_time, calc_duration(delivered_date, delivered_time, closed_date, closed_time)
+        assigned_date, assigned_time, requested_to_assigned_minutes, requested_to_assigned_hours,
+        picked_up_date, picked_up_time, assigned_to_picked_up_minutes, assigned_to_picked_up_hours,
+        delivered_date, delivered_time, picked_up_to_delivered_minutes, picked_up_to_delivered_hours,
+        closed_date, closed_time, delivered_to_closed_minutes, delivered_to_closed_hours
     ], index=[
-        'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion',
-        'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida',
-        'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega',
-        'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado'
+        'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
+        'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
+        'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
+        'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
     ])
 
-test  = process_service_statuses(df_merged.iloc[0])
-print("\ntest:")
-print(test)
-
-
 # Apply the function to the dataframe
-# df_merged = df_merged.apply(process_service_statuses, axis=1)
+df_merged = df_merged.apply(process_service_statuses, axis=1)
 
-
-
-
+print("\ndf_merged:")
+print(df_merged.iloc[0])
 
 
 # # Clean
