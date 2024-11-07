@@ -12,26 +12,27 @@ ryf_conn = helper.get_ryf_conn()
 etl_conn = helper.get_etl_conn()
 
 
-# Extract
+def create_dim_novedad():
+    # Extract
 
-df_tipo_novedad = pd.read_sql_table('mensajeria_tiponovedad', ryf_conn)
+    df_tipo_novedad = pd.read_sql_table('mensajeria_tiponovedad', ryf_conn)
 
-# Transform
+    # Transform
 
-df_tipo_novedad = df_tipo_novedad[[
-    'id', 'nombre'
-]].rename(
-    columns={
-        'id': 'tipo_novedad_id', 'nombre': 'tipo_novedad'
-    }
-)
+    df_tipo_novedad = df_tipo_novedad[[
+        'id', 'nombre'
+    ]].rename(
+        columns={
+            'id': 'tipo_novedad_id', 'nombre': 'tipo_novedad'
+        }
+    )
 
-# Merge
+    # Merge
 
-# Perform the LEFT JOIN operations
+    # Perform the LEFT JOIN operations
 
-df_merge = df_tipo_novedad
+    df_merge = df_tipo_novedad
 
-# Load
+    # Load
 
-helper.load_data("etl_conn", df_merge, TABLE_NAME, INDEX_NAME)
+    helper.load_data("etl_conn", df_merge, TABLE_NAME, INDEX_NAME)
