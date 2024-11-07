@@ -36,6 +36,9 @@ df_merged = pd.merge(df_dim_mensajero, df_auth_user, left_on='user_id', right_on
 # Drop the columns that are not needed (fecha_entrada y fecha_salida)
 df_merged = df_merged.drop(columns=['ciudad_id', 'ciudad_operacion_id', 'id', 'fecha_entrada', 'fecha_salida'])
 
+# Drop the user_id column
+df_merged = df_merged.drop(columns=['user_id'])
+
 # Fill empty strings
 df_merged['ciudad_nombre'] = df_merged['ciudad_nombre'].fillna("N/A")
 
