@@ -61,3 +61,4 @@ def create_hecho_novedades():
     # Load
 
     helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
+
