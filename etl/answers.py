@@ -124,19 +124,30 @@ response_8 = df_hecho_acumulating_servicios
 def get_avg_time(df, column):
     return round(df[column].mean(), 2)
 
-response_8 = {
+response_8_mins = {
     'Asignacion minutos': get_avg_time(response_8, 'tiempo_minutos_asignacion'),
-    'Asignacion horas': get_avg_time(response_8, 'tiempo_horas_asignacion'),
     'Recogido minutos': get_avg_time(response_8, 'tiempo_minutos_recogida'),
-    'Recogido horas': get_avg_time(response_8, 'tiempo_horas_recogida'),
     'Entregado minutos': get_avg_time(response_8, 'tiempo_minutos_entrega'),
-    'Entregado horas': get_avg_time(response_8, 'tiempo_horas_entrega'),
     'Cerrado minutos': get_avg_time(response_8, 'tiempo_minutos_cerrado'),
+}
+
+response_8_hours = {
+    'Asignacion horas': get_avg_time(response_8, 'tiempo_horas_asignacion'),
+    'Recogido horas': get_avg_time(response_8, 'tiempo_horas_recogida'),
+    'Entregado horas': get_avg_time(response_8, 'tiempo_horas_entrega'),
     'Cerrado horas': get_avg_time(response_8, 'tiempo_horas_cerrado')
 }
 
-for key, value in response_8.items():
+for key, value in response_8_mins.items():
     print(key, value)
+for key, value in response_8_hours.items():
+    print(key, value)
+# get the max value
+max_value_mins = max(response_8_mins, key=response_8_mins.get)
+max_value_hours = max(response_8_hours, key=response_8_hours.get)
+print('Fase con más demoras en minutos:', max_value_mins, " Tiempo: ", response_8_mins[max_value_mins])
+print('Fase con más demoras en horas:', max_value_hours, " Tiempo: ", response_8_hours[max_value_hours])
+
 print('\n')
 
 # 9) Cuáles son las novedades que más se presentan durante la prestación del servicio?
