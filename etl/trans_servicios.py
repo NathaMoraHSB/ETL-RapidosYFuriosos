@@ -105,6 +105,7 @@ def process_service_statuses(row):
     picked_up_date, picked_up_time = get_status(4)
     delivered_date, delivered_time = get_status(5)
     closed_date, closed_time = get_status(6)
+    # If the service is not closed, set closed_date and closed_time to delivered_date and delivered_time
     if closed_date is None:
         closed_date, closed_time = delivered_date, delivered_time
 
