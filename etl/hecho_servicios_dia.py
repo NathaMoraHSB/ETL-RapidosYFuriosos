@@ -21,11 +21,7 @@ df_trans_servicios = pd.read_sql_table('trans_servicios', etl_conn).sort_values(
 
 # Load dimensions
 
-df_dim_cliente = pd.read_sql_table('dim_cliente', etl_conn)
-df_dim_mensajero = pd.read_sql_table('dim_mensajero', etl_conn)
-df_dim_sede = pd.read_sql_table('dim_sede', etl_conn)
 df_dim_fecha = pd.read_sql_table('dim_fecha', etl_conn)
-df_dim_hora = pd.read_sql_table('dim_hora', etl_conn)
 
 # Transform
 
