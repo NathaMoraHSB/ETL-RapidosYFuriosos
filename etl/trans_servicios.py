@@ -60,8 +60,20 @@ df_merged = df_mensajeria_servicio.merge(
 
 # Clean
 
+
 # Update mensajero_id based on mensajero2_id and mensajero3_id
-df_merged = df_merged.apply(helper.update_mensajero_ids, axis=1)
+def update_mensajero_ids(row):
+    # If mensajero2_id is not null, use its value
+    if not pd.isnull(row['mensajero2_id']):
+        row['mensajero_id'] = row['mensajero2_id']
+    # If mensajero3_id is not null and mensajero_id is still null, use its value
+    if not pd.isnull(row['mensajero3_id']):
+        row['mensajero_id'] = row['mensajero3_id']
+    return row
+
+
+# Update mensajero_id based on mensajero2_id and mensajero3_id
+df_merged = df_merged.apply(update_mensajero_ids, axis=1)
 
 # Drop rows where mensajero_id is still None (these are the rows marked for dropping)
 df_merged = df_merged.dropna(subset=['mensajero_id'])
