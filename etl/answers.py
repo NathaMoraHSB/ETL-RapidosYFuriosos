@@ -156,6 +156,6 @@ print('Novedades que más se presentan durante la prestación del servicio')
 response_9 = df_hecho_novedades.merge(
     df_dim_novedad,
     left_on='key_dim_novedad',
-    right_on='key_dim_novedad').groupby(['tipo_novedad', 'descripcion']).size().reset_index(name='numero_novedades')
+    right_on='key_dim_novedad').groupby(['tipo_novedad']).size().reset_index(name='numero_novedades')
 response_9 = response_9.sort_values(by='numero_novedades', ascending=False)
 print(response_9, '\n')
