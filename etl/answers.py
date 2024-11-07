@@ -55,8 +55,8 @@ response_2 = df_hecho_servicios_dia.sort_values(by='numero_servicios', ascending
 response_2 = response_2.merge(
     df_dim_fecha,
     left_on='key_dim_fecha_solicitud',
-    right_on='key_dim_fecha')[['numero_servicios', 'fecha_completa', 'dia', 'nombre_dia']]
-print(response_2.head(5), '\n')
+    right_on='key_dim_fecha')[['numero_servicios', 'dia', 'nombre_dia']]
+print(response_2, '\n')
 
 
 # 3) A qué hora los mensajeros están más ocupados.
@@ -67,7 +67,7 @@ response_3 = response_3.merge(
     df_dim_hora,
     left_on='key_dim_hora_solicitud',
     right_on='key_dim_hora')[['hora', 'numero_servicios']]
-print(response_3.head(5), '\n')
+print(response_3, '\n')
 
 
 # 4) Número de servicios solicitados por cliente y por mes
