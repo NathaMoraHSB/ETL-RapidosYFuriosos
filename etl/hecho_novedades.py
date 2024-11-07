@@ -9,13 +9,12 @@ INDEX_NAME = 'key_hecho_novedades'
 
 # Establish connections
 
-ryf_conn = helper.get_ryf_conn()
 etl_conn = helper.get_etl_conn()
 
 
 # Extract
 
-df_trans_novedades = pd.read_sql_table('trans_novedades', ryf_conn)
+df_trans_novedades = pd.read_sql_table('trans_novedades', etl_conn)
 
 # Transform
 
