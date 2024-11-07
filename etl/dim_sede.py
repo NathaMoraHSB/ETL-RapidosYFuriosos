@@ -37,4 +37,4 @@ def create_dim_sede():
 
     # Load
 
-    helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
+    helper.load_data(df_merged, TABLE_NAME, INDEX_NAME)

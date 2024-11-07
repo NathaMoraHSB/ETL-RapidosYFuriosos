@@ -51,4 +51,4 @@ def create_dim_fecha():
     dim_fecha["es_feriado"] = dim_fecha["fecha_completa"].dt.date.isin(co_holidays)
 
     # Load
-    helper.load_data("etl_conn", dim_fecha, TABLE_NAME, INDEX_NAME)
+    helper.load_data(dim_fecha, TABLE_NAME, INDEX_NAME)

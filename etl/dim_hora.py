@@ -18,4 +18,4 @@ def create_dim_hora():
     })
 
     # Load
-    helper.load_data("etl_conn", dim_hora, TABLE_NAME, INDEX_NAME)
+    helper.load_data(dim_hora, TABLE_NAME, INDEX_NAME)

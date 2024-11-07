@@ -35,4 +35,4 @@ def create_dim_novedad():
 
     # Load
 
-    helper.load_data("etl_conn", df_merge, TABLE_NAME, INDEX_NAME)
+    helper.load_data(df_merge, TABLE_NAME, INDEX_NAME)

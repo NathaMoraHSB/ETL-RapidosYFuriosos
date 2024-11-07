@@ -134,4 +134,4 @@ def create_hecho_servicios_acumulating():
         right_on='hora').drop(columns=['hora', 'estado_hora_cerrado']).rename(columns={'key_dim_hora': 'key_dim_hora_cerrado'})
 
     # Load
-    helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
+    helper.load_data(df_merged, TABLE_NAME, INDEX_NAME)
