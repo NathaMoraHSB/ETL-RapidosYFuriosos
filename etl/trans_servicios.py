@@ -26,7 +26,7 @@ df_mensajeria_servicio = df_mensajeria_servicio[[
     columns={
         'id': 'servicio_id'
     }
-)
+).sort_values(by='servicio_id', ascending=True)
 
 
 df_clientes_usuario = df_clientes_usuario[[
@@ -58,6 +58,34 @@ df_merged = df_mensajeria_servicio.merge(
     right_on='clientes_usuario_id'
 )
 
+# Process service statuses for each service saving:
+# estado_fecha_asignacion
+# estado_hora_asignacion
+# estado_fecha_recogida
+# estado_hora_recogida
+# estado_fecha_entrega
+# estado_hora_entrega
+# estado_fecha_cerrado
+# estado_hora_cerrado
+# And calculate the duration of each status from df_mensajeria_estado_servicio
+# tiempo_minutos_asignacion
+# tiempo_horas_asignacion
+# tiempo_minutos_recogida
+# tiempo_horas_recogida
+# tiempo_minutos_entrega
+# tiempo_horas_entrega
+# tiempo_minutos_cerrado
+# tiempo_horas_cerrado
+
+# using the following rules:
+
+# def process_service_statuses(row):
+#     #find in df_mensajeria_estado_servicio all rows with servicio_id == row.servicio_id
+#     df_service_statuses = df_mensajeria_estado_servicio[df_mensajeria_estado_servicio['servicio_id'] == row.servicio_id]
+#     print(df_service_statuses.head(15))
+#     exit()
+# df_merged = df_merged.apply(process_service_statuses, axis=1)
+#
 # Clean
 
 # Update mensajero_id based on mensajero2_id and mensajero3_id

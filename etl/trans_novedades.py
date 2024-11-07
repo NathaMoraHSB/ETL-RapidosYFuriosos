@@ -25,7 +25,8 @@ df_mensajeria_novedad_servicio = df_mensajeria_novedad_servicio[[
     columns={
         'id': 'novedad_id'
     }
-)
+).sort_values(by='novedad_id', ascending=True)
+
 
 df_mensajeria_servicio = df_mensajeria_servicio[[
     'id', 'cliente_id']].rename(
