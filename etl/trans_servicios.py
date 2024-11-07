@@ -94,7 +94,7 @@ def process_service_statuses(row):
 
     # If there are no statuses, return a Series of None values
     if df_service_statuses.empty:
-        return pd.Series([None]*16, index=[
+        return pd.Series([None]*18, index=[
             'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
             'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
             'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
@@ -136,11 +136,12 @@ def process_service_statuses(row):
                         assigned_date, assigned_time, picked_up_date, picked_up_time,
                         picked_up_date, picked_up_time, delivered_date, delivered_time,
                         delivered_date, delivered_time, closed_date, closed_time):
-        return pd.Series([None]*16, index=[
+        return pd.Series([None]*18, index=[
             'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
             'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
             'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
-            'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
+            'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado',
+            'total_tiempo_minutos', 'total_tiempo_horas'
         ])
 
     # Calculate durations in minutes and hours between states
@@ -158,18 +159,21 @@ def process_service_statuses(row):
     assigned_to_picked_up_minutes, assigned_to_picked_up_hours = calc_duration(assigned_date, assigned_time, picked_up_date, picked_up_time)
     picked_up_to_delivered_minutes, picked_up_to_delivered_hours = calc_duration(picked_up_date, picked_up_time, delivered_date, delivered_time)
     delivered_to_closed_minutes, delivered_to_closed_hours = calc_duration(delivered_date, delivered_time, closed_date, closed_time)
+    total_tiempo_minutos = round(requested_to_assigned_minutes + assigned_to_picked_up_minutes + picked_up_to_delivered_minutes + delivered_to_closed_minutes, 2)
+    total_tiempo_horas = round(total_tiempo_minutos / 60, 2)
 
     # Return the final Series
     return pd.Series([
         assigned_date, assigned_time, requested_to_assigned_minutes, requested_to_assigned_hours,
         picked_up_date, picked_up_time, assigned_to_picked_up_minutes, assigned_to_picked_up_hours,
         delivered_date, delivered_time, picked_up_to_delivered_minutes, picked_up_to_delivered_hours,
-        closed_date, closed_time, delivered_to_closed_minutes, delivered_to_closed_hours
+        closed_date, closed_time, delivered_to_closed_minutes, delivered_to_closed_hours, total_tiempo_minutos, total_tiempo_horas
     ], index=[
         'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
         'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
         'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
-        'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
+        'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado',
+        'total_tiempo_minutos', 'total_tiempo_horas'
     ])
 
 
@@ -181,7 +185,8 @@ df_merged = df_merged.dropna(subset=[
     'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
     'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
     'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
-    'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
+    'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado',
+    'total_tiempo_minutos', 'total_tiempo_horas'
 ])
 # Reset the index
 df_merged = df_merged.reset_index(drop=True)
