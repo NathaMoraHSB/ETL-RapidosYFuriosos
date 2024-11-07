@@ -58,31 +58,29 @@ df_merged = df_mensajeria_servicio.merge(
     right_on='clientes_usuario_id'
 )
 
-# Process service statuses for each service saving:
-# estado_fecha_asignacion
-# estado_hora_asignacion
-# estado_fecha_recogida
-# estado_hora_recogida
-# estado_fecha_entrega
-# estado_hora_entrega
-# estado_fecha_cerrado
-# estado_hora_cerrado
-# And calculate the duration of each status from df_mensajeria_estado_servicio
-# tiempo_minutos_asignacion
-# tiempo_horas_asignacion
-# tiempo_minutos_recogida
-# tiempo_horas_recogida
-# tiempo_minutos_entrega
-# tiempo_horas_entrega
-# tiempo_minutos_cerrado
-# tiempo_horas_cerrado
+# Clean
 
-# using the following rules:
+# Update mensajero_id based on mensajero2_id and mensajero3_id
+df_merged = df_merged.apply(helper.update_mensajero_ids, axis=1)
+
+# Drop rows where mensajero_id is still None (these are the rows marked for dropping)
+df_merged = df_merged.dropna(subset=['mensajero_id'])
+
+# Drop unnecessary columns
+df_merged = df_merged.drop(columns=[
+    'clientes_usuario_id', 'usuario_id', 'mensajero2_id', 'mensajero3_id'
+])
 
 
+# Process service statuses
 def process_service_statuses(row):
+
     # Find all statuses for the given servicio_id
     df_service_statuses = df_mensajeria_estado_servicio[df_mensajeria_estado_servicio['servicio_id'] == row['servicio_id']]
+
+    print(f"Processing servicio_id: {row['servicio_id']}")
+
+    # If there are no statuses, return a Series of None values
     if df_service_statuses.empty:
         return pd.Series([None]*16, index=[
             'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
@@ -101,7 +99,7 @@ def process_service_statuses(row):
             return None, None
         return (state.iloc[-1] if get_latest else state.iloc[0])[['estado_fecha', 'estado_hora']]
 
-    # Get each relevant status
+    # Get each status date and time
     requested_date, requested_time = get_status(1)
     assigned_date, assigned_time = get_status(2, get_latest=True)
     picked_up_date, picked_up_time = get_status(4)
@@ -120,6 +118,7 @@ def process_service_statuses(row):
                 return False  # If any date/time comparison fails, return False
         return True
 
+    # If the statuses are not congruent, return a Series of None values
     if not is_congruent(requested_date, requested_time, assigned_date, assigned_time,
                         assigned_date, assigned_time, picked_up_date, picked_up_time,
                         picked_up_date, picked_up_time, delivered_date, delivered_time,
@@ -160,25 +159,18 @@ def process_service_statuses(row):
         'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
     ])
 
-# Apply the function to the dataframe
-df_merged = df_merged.apply(process_service_statuses, axis=1)
 
-print("\ndf_merged:")
-print(df_merged.iloc[0])
+# Apply the function to the dataframe and concatenate the resulting Series
+df_merged = df_merged.apply(lambda row: pd.concat([row, process_service_statuses(row)]), axis=1)
+
+# Remove rows that have none values in datetime fields
+df_merged = df_merged.dropna(subset=[
+    'estado_fecha_asignacion', 'estado_hora_asignacion', 'tiempo_minutos_asignacion', 'tiempo_horas_asignacion',
+    'estado_fecha_recogida', 'estado_hora_recogida', 'tiempo_minutos_recogida', 'tiempo_horas_recogida',
+    'estado_fecha_entrega', 'estado_hora_entrega', 'tiempo_minutos_entrega', 'tiempo_horas_entrega',
+    'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado'
+])
 
 
-# # Clean
-#
-# # Update mensajero_id based on mensajero2_id and mensajero3_id
-# df_merged = df_merged.apply(helper.update_mensajero_ids, axis=1)
-#
-# # Drop rows where mensajero_id is still None (these are the rows marked for dropping)
-# df_merged = df_merged.dropna(subset=['mensajero_id'])
-#
-# # Drop unnecessary columns
-# df_merged = df_merged.drop(columns=[
-#     'clientes_usuario_id', 'usuario_id', 'mensajero2_id', 'mensajero3_id'
-# ])
-#
-# # Drop the existing table if it exists
-# helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
+# Load
+helper.load_data("etl_conn", df_merged, TABLE_NAME, INDEX_NAME)
