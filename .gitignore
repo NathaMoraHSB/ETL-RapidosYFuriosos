@@ -4,3 +4,4 @@
 ./config.yml
 .config.yml
 /config.yml
+/etl/__pycache__
