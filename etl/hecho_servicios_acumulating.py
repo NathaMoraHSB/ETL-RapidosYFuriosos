@@ -133,5 +133,8 @@ def create_hecho_servicios_acumulating():
         left_on='estado_hora_cerrado',
         right_on='hora').drop(columns=['hora', 'estado_hora_cerrado']).rename(columns={'key_dim_hora': 'key_dim_hora_cerrado'})
 
+    # Remove no longer needed columns
+    df_merged = df_merged.drop(columns=['servicio_id'])
+
     # Load
     helper.load_data(df_merged, TABLE_NAME, INDEX_NAME)

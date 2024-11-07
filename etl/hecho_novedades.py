@@ -58,6 +58,9 @@ def create_hecho_novedades():
         left_on=df_merged['fecha_novedad'].dt.strftime('%Y%m%d').astype(int),
         right_on='fecha_id').drop(columns=['fecha_id', 'fecha_novedad']).rename(columns={'key_dim_fecha': 'key_dim_fecha_novedad'})
 
+    # Remove no longer needed columns
+    df_merged = df_merged.drop(columns=['novedad_id'])
+
     # Load
 
     helper.load_data(df_merged, TABLE_NAME, INDEX_NAME)
