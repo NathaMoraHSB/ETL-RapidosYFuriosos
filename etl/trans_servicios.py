@@ -30,7 +30,6 @@ def create_trans_servicios():
         }
     ).sort_values(by='servicio_id', ascending=True)
 
-
     df_clientes_usuario = df_clientes_usuario[[
         'id', 'sede_id'
     ]].rename(
@@ -38,7 +37,6 @@ def create_trans_servicios():
             'id': 'clientes_usuario_id'
         }
     )
-
 
     df_mensajeria_estado_servicio = df_mensajeria_estado_servicio[[
         'servicio_id', 'hora', 'fecha', 'estado_id'
@@ -62,7 +60,6 @@ def create_trans_servicios():
 
     # Clean
 
-
     # Update mensajero_id based on mensajero2_id and mensajero3_id
     def update_mensajero_ids(row):
         # If mensajero2_id is not null, use its value
@@ -72,7 +69,6 @@ def create_trans_servicios():
         if not pd.isnull(row['mensajero3_id']):
             row['mensajero_id'] = row['mensajero3_id']
         return row
-
 
     # Update mensajero_id based on mensajero2_id and mensajero3_id
     df_merged = df_merged.apply(update_mensajero_ids, axis=1)
@@ -85,9 +81,10 @@ def create_trans_servicios():
         'clientes_usuario_id', 'usuario_id', 'mensajero2_id', 'mensajero3_id'
     ])
 
-
     # Process service statuses
     def process_service_statuses(row):
+
+        print("Processing service statuses for servicio_id", row['servicio_id'])
 
         # Find all statuses for the given servicio_id
         df_service_statuses = df_mensajeria_estado_servicio[df_mensajeria_estado_servicio['servicio_id'] == row['servicio_id']]
@@ -175,7 +172,6 @@ def create_trans_servicios():
             'estado_fecha_cerrado', 'estado_hora_cerrado', 'tiempo_minutos_cerrado', 'tiempo_horas_cerrado',
             'total_tiempo_minutos', 'total_tiempo_horas'
         ])
-
 
     # Apply the function to the dataframe and concatenate the resulting Series
     df_merged = df_merged.apply(lambda row: pd.concat([row, process_service_statuses(row)]), axis=1)
