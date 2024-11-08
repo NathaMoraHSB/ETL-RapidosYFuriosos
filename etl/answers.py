@@ -50,7 +50,6 @@ response_2 = df_hecho_servicios_dia.merge(
 response_2 = response_2.groupby(['nombre_dia']).sum().sort_values(by='numero_servicios', ascending=False)
 print(response_2, '\n')
 
-
 # 3) A qué hora los mensajeros están más ocupados.
 
 print('Horas con más solicitudes de servicios de mensajería')
@@ -60,6 +59,7 @@ response_3 = df_hecho_servicios_hora.merge(
     right_on='key_dim_hora')[['hora', 'numero_servicios']]
 response_3 = response_3.groupby(['hora']).sum().sort_values(by='numero_servicios', ascending=False)
 print(response_3, '\n')
+
 # 4) Número de servicios solicitados por cliente y por mes
 
 print('Número de servicios solicitados por cliente y por mes')
@@ -72,19 +72,17 @@ response_4 = df_hecho_servicios_dia.merge(
     right_on='key_dim_fecha')
 response_4 = response_4.groupby(['cliente_id', 'nombre', 'nombre_mes']).agg({'numero_servicios': 'sum'}).reset_index()
 print(response_4, '\n')
-exit()
 
 # 5) Mensajeros más eficientes (Los que más servicios prestan)
 
 print('Mensajeros más eficientes')
-response_5 = df_hecho_acumulating_servicios.merge(
+response_5 = df_hecho_servicios_dia.merge(
     df_dim_mensajero,
     left_on='key_dim_mensajero',
-    right_on='key_dim_mensajero').groupby(['mensajero_id', 'username']).size().reset_index(name='numero_servicios')
-response_5 = response_5.sort_values(by='numero_servicios', ascending=False)
+    right_on='key_dim_mensajero')
+response_5 = response_5.groupby(['mensajero_id', 'username']).agg({'numero_servicios': 'sum'}).sort_values(by='numero_servicios', ascending=False)
 print(response_5, '\n')
 
-exit()
 # 6) Cuáles son las sedes que más servicios solicitan por cada cliente.
 
 print('Sedes que más servicios solicitan por cada cliente')
