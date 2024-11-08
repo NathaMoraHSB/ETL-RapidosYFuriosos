@@ -43,11 +43,11 @@ print(response_1, '\n')
 # 2) Cuáles son los días donde más solicitudes hay
 
 print('Días con más solicitudes de servicios de mensajería')
-response_2 = df_hecho_servicios_dia.sort_values(by='numero_servicios', ascending=False)
-response_2 = response_2.merge(
+response_2 = df_hecho_servicios_dia.merge(
     df_dim_fecha,
     left_on='key_dim_fecha_solicitud',
-    right_on='key_dim_fecha')[['numero_servicios', 'dia', 'nombre_dia']]
+    right_on='key_dim_fecha')[['numero_servicios','nombre_dia']]
+response_2 = response_2.groupby(['nombre_dia']).sum().sort_values(by='numero_servicios', ascending=False)
 print(response_2, '\n')
 
 
