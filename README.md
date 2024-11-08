@@ -66,3 +66,5 @@ cp config_example.yml config.yml
 ```bash
 python3.12 main.py
 ```
+
+6. Con Jupyter Notebook abrir el archivo `Visualizacion_respuestas.ipynb` para visualizar las respuestas a las preguntas planteadas en el enunciado del proyecto.
