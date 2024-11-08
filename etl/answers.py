@@ -33,8 +33,7 @@ print('Hecho Servicios Hora:', df_hecho_servicios_hora.shape[0], '\n')
 # 1) En qué meses del año los clientes solicitan más servicios de mensajería
 
 print('Meses con más solicitudes de servicios de mensajería')
-response_1 = df_hecho_servicios_dia.sort_values(by='numero_servicios', ascending=False)
-response_1 = response_1.merge(
+response_1 = df_hecho_servicios_dia.merge(
     df_dim_fecha,
     left_on='key_dim_fecha_solicitud',
     right_on='key_dim_fecha')[['nombre_mes', 'mes', 'numero_servicios']]
