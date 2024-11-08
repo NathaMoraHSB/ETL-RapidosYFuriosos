@@ -64,7 +64,7 @@ print(response_3, '\n')
 # 4) Número de servicios solicitados por cliente y por mes
 
 print('Número de servicios solicitados por cliente y por mes')
-response_4 = df_hecho_acumulating_servicios.merge(
+response_4 = df_hecho_servicios_dia.merge(
     df_dim_cliente,
     left_on='key_dim_cliente',
     right_on='key_dim_cliente').merge(
@@ -74,6 +74,7 @@ response_4 = df_hecho_acumulating_servicios.merge(
 
 response_4 = response_4.groupby(['cliente_id', 'nombre', 'nombre_mes']).size().reset_index(name='numero_servicios')
 print(response_4, '\n')
+
 
 # 5) Mensajeros más eficientes (Los que más servicios prestan)
 
