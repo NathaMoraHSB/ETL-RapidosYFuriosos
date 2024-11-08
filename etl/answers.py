@@ -54,13 +54,12 @@ print(response_2, '\n')
 # 3) A qué hora los mensajeros están más ocupados.
 
 print('Horas con más solicitudes de servicios de mensajería')
-response_3 = df_hecho_servicios_hora.sort_values(by='numero_servicios', ascending=False)
-response_3 = response_3.merge(
+response_3 = df_hecho_servicios_hora.merge(
     df_dim_hora,
     left_on='key_dim_hora_solicitud',
     right_on='key_dim_hora')[['hora', 'numero_servicios']]
+response_3 = response_3.groupby(['hora']).sum().sort_values(by='numero_servicios', ascending=False)
 print(response_3, '\n')
-
 
 # 4) Número de servicios solicitados por cliente y por mes
 
