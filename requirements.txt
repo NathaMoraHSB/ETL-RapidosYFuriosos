@@ -1,2 +1,4 @@
-SQLAlchemy
-psycopg2
+SQLAlchemy == 2.0.36
+psycopg2 == 2.9.9
+pandas == 2.2.2
+holidays == 0.57
