@@ -8,7 +8,7 @@
 ## Descripción
 
 El presente proyecto tiene como objetivo realizar un proceso de ETL (Extracción, Transformación y Carga) de datos de
-una base de datos de de una empresa de mensajería llamada Rapidos y Furiosos para la asignatura Ciencia de datos.
+una base de datos de de una empresa de mensajería llamada Rapidos y Furiosos para la asignatura ciencia de datos.
 
 ## Estructura del proyecto
 
